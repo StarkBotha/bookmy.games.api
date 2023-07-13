@@ -1,0 +1,6 @@
+# Built application files
+**/bin/
+**/obj/
+
+# Ignore Project lock file (nuget dependencies)
+**/project.lock.json
