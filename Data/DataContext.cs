@@ -22,7 +22,6 @@ public class DataContext : DbContext
     public DbSet<AuthRole> AuthRoles { get; set; }
     public DbSet<RoleClaim> RoleClaims { get; set; }
     public DbSet<User> Users { get; set; }
-    public DbSet<UserRole> UserRoles { get; set; }
 
     //Clan
     public DbSet<Clan> Clans { get; set; }
@@ -56,7 +55,6 @@ public class DataContext : DbContext
         var administratorEmailAddress = _configuration["Administrator:EmailAddress"];
         var administratorPassword = _configuration["Administrator:Password"];
         modelBuilder.Entity<User>(entity => UserConfig.Configure(entity, administratorEmailAddress!, administratorPassword!));
-        modelBuilder.Entity<UserRole>(UserRoleConfig.Configure);
 
         //Clan
         modelBuilder.Entity<Clan>(ClanConfig.Configure);

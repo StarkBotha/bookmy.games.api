@@ -11,6 +11,9 @@ public class User : External
     public bool IsSystemUser { get; set; }
 
     public Guid? ReferredBy { get; set; }
+
+    public int RoleId { get; set; }
+    public AuthRole Role { get; set; } = null!;
 }
 
 public static class UserConfig
@@ -40,10 +43,19 @@ public static class UserConfig
         config.Property(c => c.IsSystemUser)
             .HasDefaultValue(false);
 
+        //Relationship configuration
+        // config.HasOne(u => u.Role)
+        //     .WithOne(ur => ur.User)
+        //     .HasForeignKey<UserRole>(ur => ur.Id);
+
+        config.HasOne(u => u.Role)
+            .WithMany(r => r.Users)
+            .HasForeignKey(u => u.RoleId);
+
         //seed
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(adminPassword);
         config.HasData(
-            new User() {Id = 1, Email = adminEmail, PasswordHash = passwordHash, IsSystemUser = true}
+            new {Id = 1, Email = adminEmail, PasswordHash = passwordHash, IsSystemUser = true, RoleId = 1}
         );
     }
 }

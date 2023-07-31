@@ -21,6 +21,7 @@
     <ItemGroup>
       <Folder Include="Data\Enums\" />
       <Folder Include="Responses\" />
+      <Folder Include="Utility\" />
     </ItemGroup>
 
 </Project>

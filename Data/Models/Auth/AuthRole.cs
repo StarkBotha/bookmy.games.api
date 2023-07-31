@@ -10,6 +10,8 @@ namespace bookmy.games.api.Data.Models.Auth;
 public class AuthRole : EntityBase
 {
     public string Name { get; set; } = null!;
+    public ICollection<User> Users { get; set; } = new List<User>();
+    public List<RoleClaim> Claims { get; set; } = null!;
 }
 
 public static class AuthRoleConfig
@@ -29,6 +31,8 @@ public static class AuthRoleConfig
             .HasDefaultValue(false);
 
         //Name
+
+        //Relationship
 
         //Seed
         config.HasData(new AuthRole() { Id = 1, Name = "Administrator" });

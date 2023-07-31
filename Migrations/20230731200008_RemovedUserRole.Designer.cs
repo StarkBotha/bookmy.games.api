@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using bookmy.games.api.Data;
@@ -11,9 +12,11 @@ using bookmy.games.api.Data;
 namespace bookmy.games.api.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230731200008_RemovedUserRole")]
+    partial class RemovedUserRole
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,6 +33,9 @@ namespace bookmy.games.api.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("AuthRoleId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -44,6 +50,8 @@ namespace bookmy.games.api.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AuthRoleId");
 
                     b.ToTable("AuthClaims");
 
@@ -179,7 +187,7 @@ namespace bookmy.games.api.Migrations
                             Id = 1,
                             Email = "starkbotha@gmail.com",
                             IsSystemUser = true,
-                            PasswordHash = "$2a$11$sYQ1ed4P8CG6tkjELmes0OW22mbd0W9R6VfyP/Df0ZqPjXjRKn9i.",
+                            PasswordHash = "$2a$11$OnkBBly4J1Byhu8bsQb88.xXWdQ4in2pPpeSj98aF3nCXkPGjkOwu",
                             RoleId = 1
                         });
                 });
@@ -602,6 +610,13 @@ namespace bookmy.games.api.Migrations
                     b.ToTable("Languages");
                 });
 
+            modelBuilder.Entity("bookmy.games.api.Data.Models.Auth.AuthClaim", b =>
+                {
+                    b.HasOne("bookmy.games.api.Data.Models.Auth.AuthRole", null)
+                        .WithMany("Claims")
+                        .HasForeignKey("AuthRoleId");
+                });
+
             modelBuilder.Entity("bookmy.games.api.Data.Models.Auth.RoleClaim", b =>
                 {
                     b.HasOne("bookmy.games.api.Data.Models.Auth.AuthClaim", "AuthClaim")
@@ -611,7 +626,7 @@ namespace bookmy.games.api.Migrations
                         .IsRequired();
 
                     b.HasOne("bookmy.games.api.Data.Models.Auth.AuthRole", "AuthRole")
-                        .WithMany("Claims")
+                        .WithMany()
                         .HasForeignKey("AuthRoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

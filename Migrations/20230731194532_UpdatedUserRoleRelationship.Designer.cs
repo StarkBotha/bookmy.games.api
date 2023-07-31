@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using bookmy.games.api.Data;
@@ -11,9 +12,11 @@ using bookmy.games.api.Data;
 namespace bookmy.games.api.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230731194532_UpdatedUserRoleRelationship")]
+    partial class UpdatedUserRoleRelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,6 +33,9 @@ namespace bookmy.games.api.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("AuthRoleId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -44,6 +50,8 @@ namespace bookmy.games.api.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AuthRoleId");
 
                     b.ToTable("AuthClaims");
 
@@ -158,9 +166,6 @@ namespace bookmy.games.api.Migrations
                     b.Property<Guid?>("ReferredBy")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("RoleId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
@@ -168,8 +173,6 @@ namespace bookmy.games.api.Migrations
 
                     b.HasIndex("ExternalId")
                         .IsUnique();
-
-                    b.HasIndex("RoleId");
 
                     b.ToTable("Users");
 
@@ -179,8 +182,37 @@ namespace bookmy.games.api.Migrations
                             Id = 1,
                             Email = "starkbotha@gmail.com",
                             IsSystemUser = true,
-                            PasswordHash = "$2a$11$sYQ1ed4P8CG6tkjELmes0OW22mbd0W9R6VfyP/Df0ZqPjXjRKn9i.",
-                            RoleId = 1
+                            PasswordHash = "$2a$11$0Aw/.L766AvWwHMN0MN/HeDvxdD/lqa2hTo9MbEBRWLT7sgOl9eVu"
+                        });
+                });
+
+            modelBuilder.Entity("bookmy.games.api.Data.Models.Auth.UserRole", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AuthRoleId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthRoleId");
+
+                    b.ToTable("UserRoles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AuthRoleId = 1
                         });
                 });
 
@@ -602,6 +634,13 @@ namespace bookmy.games.api.Migrations
                     b.ToTable("Languages");
                 });
 
+            modelBuilder.Entity("bookmy.games.api.Data.Models.Auth.AuthClaim", b =>
+                {
+                    b.HasOne("bookmy.games.api.Data.Models.Auth.AuthRole", null)
+                        .WithMany("Claims")
+                        .HasForeignKey("AuthRoleId");
+                });
+
             modelBuilder.Entity("bookmy.games.api.Data.Models.Auth.RoleClaim", b =>
                 {
                     b.HasOne("bookmy.games.api.Data.Models.Auth.AuthClaim", "AuthClaim")
@@ -611,7 +650,7 @@ namespace bookmy.games.api.Migrations
                         .IsRequired();
 
                     b.HasOne("bookmy.games.api.Data.Models.Auth.AuthRole", "AuthRole")
-                        .WithMany("Claims")
+                        .WithMany()
                         .HasForeignKey("AuthRoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -621,15 +660,23 @@ namespace bookmy.games.api.Migrations
                     b.Navigation("AuthRole");
                 });
 
-            modelBuilder.Entity("bookmy.games.api.Data.Models.Auth.User", b =>
+            modelBuilder.Entity("bookmy.games.api.Data.Models.Auth.UserRole", b =>
                 {
-                    b.HasOne("bookmy.games.api.Data.Models.Auth.AuthRole", "Role")
-                        .WithMany("Users")
-                        .HasForeignKey("RoleId")
+                    b.HasOne("bookmy.games.api.Data.Models.Auth.AuthRole", "AuthRole")
+                        .WithMany()
+                        .HasForeignKey("AuthRoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Role");
+                    b.HasOne("bookmy.games.api.Data.Models.Auth.User", "User")
+                        .WithOne("Role")
+                        .HasForeignKey("bookmy.games.api.Data.Models.Auth.UserRole", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AuthRole");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("bookmy.games.api.Data.Models.Clan.ClanImage", b =>
@@ -798,8 +845,12 @@ namespace bookmy.games.api.Migrations
             modelBuilder.Entity("bookmy.games.api.Data.Models.Auth.AuthRole", b =>
                 {
                     b.Navigation("Claims");
+                });
 
-                    b.Navigation("Users");
+            modelBuilder.Entity("bookmy.games.api.Data.Models.Auth.User", b =>
+                {
+                    b.Navigation("Role")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("bookmy.games.api.Data.Models.Clan.Clan", b =>

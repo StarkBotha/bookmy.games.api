@@ -18,8 +18,16 @@ public class AuthenticationController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> RegisterAsync(RegisterUserRequest request)
     {
-        await _client.Register(request);
+        await _client.RegisterAsync(request);
 
         return Ok();
+    }
+
+    [HttpPost("sign-in")]
+    public async Task<IActionResult> SignIn(SignInUserRequest request)
+    {
+        var token = await _client.SignInAsync(request);
+
+        return Ok(token);
     }
 }

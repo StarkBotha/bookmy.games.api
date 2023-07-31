@@ -4,5 +4,6 @@ namespace bookmy.games.api.ApiClient.Authentication;
 
 public interface IAuthenticationApiClient
 {
-    Task Register(RegisterUserRequest request);
+    Task RegisterAsync(RegisterUserRequest request);
+    Task<string> SignInAsync(SignInUserRequest request);
 }
