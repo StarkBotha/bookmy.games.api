@@ -5,17 +5,16 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace bookmy.games.api.Data.Models.Auth;
 
 /// <summary>
-/// Link table between Role and Claims
+/// Auth Role - a role is a grouping of claims
 /// </summary>
-public class RoleClaim : EntityBase
+public class AuthRole : EntityBase
 {
-    public AuthRole AuthRole { get; set; } = null!;
-    public AuthClaim AuthClaim { get; set; } = null!;
+    public string Name { get; set; } = null!;
 }
 
-public static class RoleClaimConfig
+public static class AuthRoleConfig
 {
-    public static void Configure(EntityTypeBuilder<RoleClaim> config)
+    public static void Configure(EntityTypeBuilder<AuthRole> config)
     {
         //Id
         //Identity
@@ -29,14 +28,9 @@ public static class RoleClaimConfig
         config.Property(c => c.IsDeleted)
             .HasDefaultValue(false);
 
-        //AuthRole
-
-        //AuthClaim
+        //Name
 
         //Seed
-        config.HasData(
-            //Overlord
-            new {Id = 1, AuthRoleId = 1, AuthClaimId = 1}
-            );
+        config.HasData(new AuthRole() { Id = 1, Name = "Administrator" });
     }
 }
